@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Blah Form</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+</head>
+
+<body>
+
+    <div class="container">
+        <h2>Blah form ... </h2>
+        <form id="reg_form">
+
+            <div class="form-group">
+                <label for="email">Name:</label>
+                <input required type="text" class="form-control" id="name" placeholder="Enter Name" name="text">
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input required type="email" class="form-control" id="email" placeholder="Enter email" name="email">
+            </div>
+            <div class="form-group">
+                <label for="pwd">Password:</label>
+                <input required type="password" class="form-control" id="pwd" placeholder="Enter password" name="pwd">
+            </div>
+            <div class="checkbox">
+                <label><input type="checkbox" name="remember"> Remember me</label>
+            </div>
+            <button type="submit" class="btn btn-primary">Add monkey ! </button>
+        </form>
+        <br /><br />
+        <button type="button" class="btn btn-success" id="a_button">Get all users</button>
+        <p id="a_phara"></p>
+
+    </div>
+
+    <script>
+
+
+
+
+
+
+        document.getElementById("a_button").addEventListener("click", function () {
+            //alert("boom ! ");
+            fetch('/monkey', {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json, text/plain, */*',
+                    'Content-Type': 'application/json'
+                }
+            }).then((response) => {
+                //console.log(response);
+                return response.json();
+            }).then((data) => {
+                console.log(data);
+                document.getElementById("a_phara").innerHTML = "<h3>this data @get response : </h3><br/><br/>" + JSON.stringify(data);
+            });
+        });
+
+        document.getElementById("reg_form").addEventListener("submit", function (e) {
+            e.preventDefault();
+
+            document.getElementById("a_phara").innerHTML  = "";
+
+            fetch("http://api.ipify.org/?format=json", {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json, text/plain, */*',
+                    'Content-Type': 'application/json'
+                }
+            }).then((response) => {
+                //console.log(response);
+                return response.json();
+            }).then((data) => {
+                console.log(data["ip"]);
+                const d = new Date(),today = ""+d.getDay()+d.getMonth()+d.getFullYear(); 
+                fetch("/ip/", {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json, text/plain, */*',
+                        'Content-Type': 'application/json'
+                    },
+                    body : JSON.stringify({ip :data["ip"], timestamp : today, hit : 0}) 
+                }).then((response) => {
+                    //console.log(response);
+                    return response.json();
+                }).then((data) => { 
+                    document.getElementById("a_phara").innerHTML  +=  ( "<h3>this data @post response : </h3><br/><br/>" + JSON.stringify(data) +"<br/>");
+                });
+
+                fetch("/ip/update/"+data["ip"], {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json, text/plain, */*',
+                        'Content-Type': 'application/json'
+                    },
+                    body : JSON.stringify({ip :data["ip"], timestamp : today, hit : 0}) 
+                }).then((response) => {
+                    //console.log(response);
+                    return response.json();
+                }).then((data) => { 
+                    document.getElementById("a_phara").innerHTML  +=  ( JSON.stringify(data) +"<br/>");
+                });
+                
+
+            });
+
+            const name = document.querySelector("#name").value;
+            const email = document.querySelector("#email").value;
+            const pwd = document.querySelector("#pwd").value;
+            fetch('/monkey', {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json, text/plain, */*',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ name: name, email: email, pwd: pwd })
+            }).then((response) => {
+                //console.log(response);
+                return response.json();
+            }).then((data) => {
+                console.log(data);
+                document.getElementById("a_phara").innerHTML += ( JSON.stringify(data)+"<br/>");
+            });
+
+        }); 
+    </script>
+
+</body>
+
+</html>
